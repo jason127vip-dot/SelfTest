@@ -1,9 +1,11 @@
 package main
 
 import (
-	"github.com/jason127vip-dot/goself/model"
+	"github.com/jason127vip-dot/SelfTest/model"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/jason127vip-dot/SelfTest/service"
 )
 
 func main() {
@@ -39,6 +41,21 @@ func main() {
 		}
 
 		ctx.JSON(200, task)
+	})
+
+	taskService := &service.TaskServiceImpl{}
+
+	r.GET("/alltasks", func(c *gin.Context) {
+		tasks, err := taskService.QueryAllTasks()
+
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(200, tasks)
 	})
 
 	r.Run(":8080")
