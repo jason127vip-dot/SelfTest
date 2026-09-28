@@ -5,5 +5,13 @@ import (
 )
 
 type TaskService interface {
-	QueryAllTasks() ([]model.Task, error)
+	QueryAllTasks(status string,
+		page int,
+		pageSize int) ([]model.Task, error)
+
+	SaveTask(task *model.Task) error
+
+	UpdateTask(task *model.Task) (*model.Task, error)
+
+	DeleteTask(task *model.Task) error
 }

@@ -1,25 +1,35 @@
 package service
 
-import "github.com/jason127vip-dot/SelfTest/model"
+import (
+	"github.com/jason127vip-dot/SelfTest/model"
+	"github.com/jason127vip-dot/SelfTest/repository"
+)
 
 type TaskServiceImpl struct {
+	repository repository.TaskRepository
 }
 
-func (s *TaskServiceImpl) QueryAllTasks() ([]model.Task, error) {
-	tasks := []model.Task{
-		{
-			ID:          "1",
-			Title:       "Learn Go",
-			Description: "Study Gin",
-			Status:      "todo",
-		},
-		{
-			ID:          "2",
-			Title:       "Build API",
-			Description: "Practice service layer",
-			Status:      "doing",
-		},
+func NewTaskService(repo repository.TaskRepository) *TaskServiceImpl {
+	return &TaskServiceImpl{
+		repository: repo,
 	}
+}
 
-	return tasks, nil
+func (s *TaskServiceImpl) QueryAllTasks(status string,
+	page int,
+	pageSize int) ([]model.Task, error) {
+
+	return s.repository.QueryAllTasks(status, page, pageSize)
+}
+
+func (s *TaskServiceImpl) SaveTask(task *model.Task) error {
+	return s.repository.SaveTask(task)
+}
+
+func (s *TaskServiceImpl) UpdateTask(task *model.Task) (*model.Task, error) {
+	return s.repository.UpdateTask(task)
+}
+
+func (s *TaskServiceImpl) DeleteTask(task *model.Task) error {
+	return s.repository.DeleteTask(task)
 }

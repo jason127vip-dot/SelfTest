@@ -1,8 +1,8 @@
 package model
 
 type Task struct {
-	ID          string `json:"id"`
-	Title       string `json:"title"`
+	ID          uint   `json:"id" gorm:"primaryKey;autoIncrement"`
+	Title       string `json:"title" binding:"required"`
 	Description string `json:"description"`
-	Status      string `json:"status"`
+	Status      string `json:"status" binding:"required"`
 }
