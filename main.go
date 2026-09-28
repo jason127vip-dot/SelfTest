@@ -17,7 +17,10 @@ func main() {
 
 	r.Use(middleware.LoggerMiddleware())
 
-	db, err := config.InitDB()
+	cfg := config.LoadConfig()
+
+	db, err := config.InitDB(cfg.DatabaseURL)
+
 	if err != nil {
 		panic(err)
 	}
@@ -32,5 +35,5 @@ func main() {
 
 	router.RegisterRoutes(r, taskHandler)
 
-	r.Run(":8080")
+	r.Run(":" + cfg.ServerPort)
 }

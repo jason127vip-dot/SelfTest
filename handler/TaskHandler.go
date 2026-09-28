@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,7 @@ import (
 	"github.com/jason127vip-dot/SelfTest/model"
 	"github.com/jason127vip-dot/SelfTest/response"
 	"github.com/jason127vip-dot/SelfTest/service"
+	"github.com/jason127vip-dot/SelfTest/utils"
 )
 
 type TaskHandler struct {
@@ -88,6 +90,13 @@ func (h *TaskHandler) DeleteTask(ctx *gin.Context) {
 }
 
 func (h *TaskHandler) QueryAllTasks(c *gin.Context) {
+
+	userID, _ := c.Get("userId")
+	username, _ := c.Get("username")
+
+	fmt.Println(userID)
+	fmt.Println(username)
+
 	status := c.Query("status")
 
 	pageStr := c.DefaultQuery("page", "1")
@@ -104,4 +113,31 @@ func (h *TaskHandler) QueryAllTasks(c *gin.Context) {
 	}
 
 	response.Success(c, tasks)
+}
+
+func (h *TaskHandler) Login(c *gin.Context) {
+	var req struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Error(c, 400, err.Error())
+		return
+	}
+
+	if req.Username != "jin" || req.Password != "123456" {
+		response.Error(c, 401, "invalid username or password")
+		return
+	}
+
+	token, err := utils.GenerateToken(1, req.Username)
+	if err != nil {
+		response.Error(c, 500, err.Error())
+		return
+	}
+
+	response.Success(c, gin.H{
+		"token": token,
+	})
 }

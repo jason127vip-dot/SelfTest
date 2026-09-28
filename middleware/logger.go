@@ -45,6 +45,8 @@ func LoggerMiddleware() gin.HandlerFunc {
 
 		c.Writer = writer
 
+		c.Next()
+
 		// 再执行 Handler
 		c.Next()
 
