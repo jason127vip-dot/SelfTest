@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"bytes"
-	"fmt"
 	"io"
+	"log/slog"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,21 +23,18 @@ func LoggerMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 
-		fmt.Println("请求方法:", c.Request.Method)
-		fmt.Println("请求URL:", c.Request.URL.String())
-		fmt.Println("请求Header:", c.Request.Header)
+		// 读取请求 Body
+		var requestBody string
 
-		// 请求 Body
 		if c.Request.Body != nil {
 			bodyBytes, _ := io.ReadAll(c.Request.Body)
+			requestBody = string(bodyBytes)
 
-			fmt.Println("请求Body:", string(bodyBytes))
-
-			// 放回去，保证 Handler 还能继续读取
+			// 放回去，保证 Handler 后面还能继续读取
 			c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 		}
 
-		// 先包装 ResponseWriter
+		// 包装 ResponseWriter，用来记录响应 Body
 		writer := &bodyLogWriter{
 			ResponseWriter: c.Writer,
 			body:           bytes.NewBufferString(""),
@@ -45,14 +42,18 @@ func LoggerMiddleware() gin.HandlerFunc {
 
 		c.Writer = writer
 
+		// 执行真正的 Handler
 		c.Next()
 
-		// 再执行 Handler
-		c.Next()
-
-		// Handler 执行完后，此时 writer.body 已经有返回内容
-		fmt.Println("响应状态码:", c.Writer.Status())
-		fmt.Println("响应Body:", writer.body.String())
-		fmt.Println("请求耗时:", time.Since(start))
+		// Handler 执行完成后记录日志
+		slog.Info(
+			"http request",
+			"method", c.Request.Method,
+			"url", c.Request.URL.String(),
+			"requestBody", requestBody,
+			"status", c.Writer.Status(),
+			"responseBody", writer.body.String(),
+			"cost", time.Since(start),
+		)
 	}
 }
