@@ -1,11 +1,13 @@
 package service
 
 import (
+	"context"
+
 	"github.com/jason127vip-dot/SelfTest/model"
 )
 
 type TaskService interface {
-	QueryAllTasks(status string,
+	QueryAllTasks(ctx context.Context, status string,
 		page int,
 		pageSize int) ([]model.Task, error)
 

@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"github.com/jason127vip-dot/SelfTest/model"
 	"github.com/jason127vip-dot/SelfTest/repository"
 )
@@ -15,11 +17,11 @@ func NewTaskService(repo repository.TaskRepository) *TaskServiceImpl {
 	}
 }
 
-func (s *TaskServiceImpl) QueryAllTasks(status string,
+func (s *TaskServiceImpl) QueryAllTasks(ctx context.Context, status string,
 	page int,
 	pageSize int) ([]model.Task, error) {
 
-	return s.repository.QueryAllTasks(status, page, pageSize)
+	return s.repository.QueryAllTasks(ctx, status, page, pageSize)
 }
 
 func (s *TaskServiceImpl) SaveTask(task *model.Task) error {

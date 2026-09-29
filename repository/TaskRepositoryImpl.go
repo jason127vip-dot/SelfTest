@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"context"
+
 	"github.com/jason127vip-dot/SelfTest/model"
 	"gorm.io/gorm"
 )
@@ -15,12 +17,12 @@ func NewTaskRepository(db *gorm.DB) *TaskRepositoryImpl {
 	}
 }
 
-func (r *TaskRepositoryImpl) QueryAllTasks(status string,
+func (r *TaskRepositoryImpl) QueryAllTasks(ctx context.Context, status string,
 	page int,
 	pageSize int) ([]model.Task, error) {
 	var tasks []model.Task
 
-	query := r.db
+	query := r.db.WithContext(ctx)
 	if status != "" {
 		query = query.Where("status = ?", status)
 	}
@@ -41,13 +43,24 @@ func (r *TaskRepositoryImpl) QueryAllTasks(status string,
 }
 
 func (r *TaskRepositoryImpl) SaveTask(task *model.Task) error {
-	result := r.db.Create(task)
+	return r.db.Transaction(func(tx *gorm.DB) error {
 
-	if result.Error != nil {
-		return result.Error
-	}
+		// 1. 先删除 title = "Book1" 的数据
+		if err := tx.Where("title = ?", "2222").
+			Delete(&model.Task{}).Error; err != nil {
+			return err
+		}
 
-	return result.Error
+		//return errors.New("test error")
+
+		// 2. 再新增
+		if err := tx.Create(task).Error; err != nil {
+			return err
+		}
+
+		// 3. 返回 nil，表示提交事务
+		return nil
+	})
 }
 
 func (r *TaskRepositoryImpl) UpdateTask(newTask *model.Task) (*model.Task, error) {

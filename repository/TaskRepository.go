@@ -1,9 +1,13 @@
 package repository
 
-import "github.com/jason127vip-dot/SelfTest/model"
+import (
+	"context"
+
+	"github.com/jason127vip-dot/SelfTest/model"
+)
 
 type TaskRepository interface {
-	QueryAllTasks(status string, page int, pageSize int) ([]model.Task, error)
+	QueryAllTasks(ctx context.Context, status string, page int, pageSize int) ([]model.Task, error)
 
 	SaveTask(task *model.Task) error
 

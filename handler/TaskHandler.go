@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jason127vip-dot/SelfTest/dto"
@@ -105,7 +108,18 @@ func (h *TaskHandler) QueryAllTasks(c *gin.Context) {
 	page, _ := strconv.Atoi(pageStr)
 	pageSize, _ := strconv.Atoi(pageSizeStr)
 
-	tasks, err := h.service.QueryAllTasks(status, page, pageSize)
+	ctx, cancel := context.WithTimeout(
+		c.Request.Context(),
+		3*time.Second,
+	)
+	defer cancel()
+
+	tasks, err := h.service.QueryAllTasks(ctx, status, page, pageSize)
+
+	if errors.Is(err, context.DeadlineExceeded) {
+		response.Error(c, 504, "request timeout")
+		return
+	}
 
 	if err != nil {
 		response.Error(c, 500, err.Error())

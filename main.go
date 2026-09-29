@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
+	"sync"
+	"time"
 
 	"github.com/jason127vip-dot/SelfTest/config"
 	"github.com/jason127vip-dot/SelfTest/handler"
@@ -53,5 +56,39 @@ func main() {
 
 	router.RegisterRoutes(r, taskHandler)
 
-	r.Run(":" + cfg.ServerPort)
+	/**go printTask()
+
+	fmt.Println("main continues")
+
+	time.Sleep(6 * time.Second)**/
+
+	// var wg sync.WaitGroup
+
+	// for i := 1; i <= 3; i++ {
+	// 	wg.Add(1)
+
+	// 	go work(i, &wg)
+	// }
+
+	// wg.Wait()
+
+	// fmt.Println("all finished")
+
+}
+
+func printTask() {
+	for i := 1; i <= 2; i++ {
+		fmt.Println("task:", i)
+		time.Sleep(time.Second)
+	}
+}
+
+func work(id int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	fmt.Println("start:", id)
+
+	time.Sleep(time.Second)
+
+	fmt.Println("end:", id)
 }
